@@ -4,12 +4,12 @@ from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 
-class Sdn_topo:
+class Sdn_topo(Topo):
 
     def build(self, n = 2):
         switch = self.addSwitch('s1')
         for i in range(n):
-            host = self.addHost('h{}'.format(n + 1))
+            host = self.addHost('h{}'.format(i + 1))
             self.addLink(host, switch)
 
 def start():
@@ -23,7 +23,9 @@ def start():
     net.pingAll()
     net.stop()
 
-if __name__ == '__main__':
-    # Tell mininet to print useful information
-    setLogLevel('info')
-    start()
+#if __name__ == '__main__':
+ #   # Tell mininet to print useful information
+  #  setLogLevel('info')
+   # start()
+
+topos = {'mytopo': Sdn_topo}
