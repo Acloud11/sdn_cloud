@@ -31,9 +31,20 @@ class FlowController(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(FlowController, self).__init__(*args, **kwargs)
-        # initialize mac address table.
-        self.mac_to_port = {}
-        for i in range(len(self.flowMatrix)):
+
+        self.ofp_brick = app_manager.lookup_service_brick('ofp_event')
+        
+	for i in range(len(self.flowMatrix)):
             event = ofp_event.EventOFChangeFlow(matrix = self.flowMatrix)
-            ofp_brick = app_manager.lookup_service_brick('oxp_event')
-            ofp_brick.send_event_to_observers(event, MAIN_DISPATCHER)
+            self.ofp_brick.send_event_to_observers(event, MAIN_DISPATCHER)
+
+	    for sec in range(100):
+		print(sec+1)
+		time.sleep(1)
+
+
+
+
+
+
+

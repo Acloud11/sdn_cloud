@@ -20,13 +20,16 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
-
+from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 
 class ExampleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    _CONTEXTS = { 'wsgi': WSGIApplication }
 
     def __init__(self, *args, **kwargs):
         super(ExampleSwitch13, self).__init__(*args, **kwargs)
+
+	
         # initialize mac address table.
         self.mac_to_port = {}
 
@@ -50,14 +53,13 @@ class ExampleSwitch13(app_manager.RyuApp):
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
-	
 
-	match = parser.OFPMatch(in_port=1)
-	actions = [parser.OFPActionOutput(2)] 
-        self.add_flow(datapath, 1, match, actions)	
-	match = parser.OFPMatch(in_port=2)
-	actions = [parser.OFPActionOutput(1)] 
-        self.add_flow(datapath, 1, match, actions)
+#	match = parser.OFPMatch(in_port=1)
+#	actions = [parser.OFPActionOutput(2)] 
+ #       self.add_flow(datapath, 1, match, actions)	
+#	match = parser.OFPMatch(in_port=2)
+#	actions = [parser.OFPActionOutput(1)] 
+ #       self.add_flow(datapath, 1, match, actions)
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -69,6 +71,7 @@ class ExampleSwitch13(app_manager.RyuApp):
         mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                 match=match, instructions=inst)
         datapath.send_msg(mod)
+
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
