@@ -1,50 +1,53 @@
-# Copyright (C) 2016 Nippon Telegraph and Telephone Corporation.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-# implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+import requests, json, time
 
-from ryu.base import app_manager
-from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
-from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
+def add_flow(matrix):
+    data = {
+	"dpid": 1,
+	"match":{
+	    #"in_port":1
+		},
+	"instructions": [
+	    {
+		"type": "APPLY_ACTIONS",
+		"len": 24,
+		"actions": [
+		    {
+		        "max_len": 0,
+		        "type": "OUTPUT",
+		#        "port": 2,
+		        "len": 16
+		    }
+		]
+	    }
+	]
+    }
+	#i:in_port; j:out_port
+    for i,low in enumerate(matrix):
+	for j,tag in enumerate(low):
+	    if tag == 1:
+		data['match']['in_port'] = i +1
+		data['instructions'][0]['actions'][0]['port'] = j+1 
+		#print(data)
+	        data_json = json.dumps(data)
+		print(data)
+	        url = 'http://0.0.0.0:8080/stats/flowentry/add'
+		#url = 'http://10.10.10.10:8080/stats/flowentry/add'
+		try:
+	            requests.post(url, data=data_json)
+		    time.sleep(2)
+		except Exception as e:
+		    print(e)
+def del_all_flow():
+    url = 'http://0.0.0.0:8080/stats/flowentry/clear/'
+    try:
+	requests.delete(url)
+	time.sleep(2)
+    except Exception as e:
+	print(e)
 
-
-class FlowController(app_manager.RyuApp):
-    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-
-    flowMatrix = []
-    flowMatrix.append([[0,1,0],[1,0,0],[0,0,0]])
-    flowMatrix.append([[0,1,1],[1,0,0],[1,0,0]])
-
-    def __init__(self, *args, **kwargs):
-        super(FlowController, self).__init__(*args, **kwargs)
-
-        self.ofp_brick = app_manager.lookup_service_brick('ofp_event')
-        
-	for i in range(len(self.flowMatrix)):
-            event = ofp_event.EventOFChangeFlow(matrix = self.flowMatrix)
-            self.ofp_brick.send_event_to_observers(event, MAIN_DISPATCHER)
-
-	    for sec in range(100):
-		print(sec+1)
-		time.sleep(1)
-
-
-
-
-
+if __name__ == '__main__':
+    matrix = [[0,1],[1,0]]
+    #del_all_flow()
+    add_flow(matrix)
 
 

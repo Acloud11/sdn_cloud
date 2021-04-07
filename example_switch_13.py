@@ -24,7 +24,7 @@ from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 
 class ExampleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    _CONTEXTS = { 'wsgi': WSGIApplication }
+    #_CONTEXTS = { 'wsgi': WSGIApplication }
 
     def __init__(self, *args, **kwargs):
         super(ExampleSwitch13, self).__init__(*args, **kwargs)
