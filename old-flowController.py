@@ -5,20 +5,12 @@ def add_flow(tuples, pid):
 	"match":{
 	    #"in_port":1
 		},
-#	"instructions": [
-#	    {
-#		"type": "APPLY_ACTIONS",
-#		"len": 24,
-		"actions": [
-		    {
-		        "max_len": 0,
-		        "type": "OUTPUT",
-		#        "port": 2,
-		        "len": 16
-		    }
-		]
-#	    }
-#	]
+	"actions": [
+	    {
+	        "type": "OUTPUT"
+	#        "port": 2,
+	    }
+	]
     }
 	#i:in_port; j:out_port
     data['dpid'] = pid
