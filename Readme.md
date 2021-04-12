@@ -1,5 +1,5 @@
 # sdn_cloud
-最好将my_switch.py 和 old-flowController.py复制到 ryu/app文件夹中
+最好将example_switch_13.py 和 old-flowController.py复制到 ryu/app文件夹中
 
 1/启动现在ryu/app中启动 `sudo ryu-manager ofctl_rest.py my_switch.py`(错误示范中example_switch_13.py的重命名)
 ~~~
