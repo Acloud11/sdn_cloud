@@ -36,6 +36,10 @@ def add_flow(tuples, pid):
 		time.sleep(2)
 	    except Exception as e:
 		print(e)
+	    demo = in_port
+	    in_port = out_port
+ 	    out_port = demo
+
 def del_all_flow():
     url = 'http://localhost:8080/stats/flowentry/clear/'
     try:
@@ -45,10 +49,10 @@ def del_all_flow():
 	print(e)
 
 if __name__ == '__main__':
-    #实际交换机的接口也不会是1、2那么简单，需要更换为实际交换机接口代码
+    #
     tuples = [(1,2)]
-    #获取实际交换机的pid
-    response=response.get('http://localhost:8080/stats/switches')
+    #
+    response=requests.get('http://localhost:8080/stats/switches')
     pid=response.json()[0]
     #del_all_flow()
     add_flow(tuples, pid)
