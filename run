@@ -1,3 +1,0 @@
-ryu-manager switch.py
-
-sudo python MiniNAM.py --custom topo.py --topo mytopo,4 --controller=remote
