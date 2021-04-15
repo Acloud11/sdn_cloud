@@ -20,6 +20,7 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from ryu.lib.packet import ether_types
 from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 
 class ExampleSwitch13(app_manager.RyuApp):
@@ -97,25 +98,21 @@ class ExampleSwitch13(app_manager.RyuApp):
 
         # learn a mac address to avoidc FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
+        #arp packet transform
+        if eth_pkt.ethertype == ether_types.ETH_TYPE_ARP:
+            # if the destination mac address is already learned,
+            # decide which port to output the packet, otherwise FLOOD.
+            if dst in self.mac_to_port[dpid]:
+                out_port = self.mac_to_port[dpid][dst]
+            else:
+                out_port = ofproto.OFPP_FLOOD
 
-        # if the destination mac address is already learned,
-        # decide which port to output the packet, otherwise FLOOD.
-        if dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][dst]
-        else:
-            out_port = ofproto.OFPP_FLOOD
+            # construct action list.
+            actions = [parser.OFPActionOutput(out_port)]
 
-        # construct action list.
-        actions = [parser.OFPActionOutput(out_port)]
-
-        # install a flow to avoid packet_in next time.
-        if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-            self.add_flow(datapath, 1, match, actions)
-
-        # construct packet_out message and send it.
-        out = parser.OFPPacketOut(datapath=datapath,
-                                  buffer_id=ofproto.OFP_NO_BUFFER,
-                                  in_port=in_port, actions=actions,
-                                  data=msg.data)
-        datapath.send_msg(out)
+            # construct packet_out message and send it.
+            out = parser.OFPPacketOut(datapath=datapath,
+                                      buffer_id=ofproto.OFP_NO_BUFFER,
+                                      in_port=in_port, actions=actions,
+                                      data=msg.data)
+            datapath.send_msg(out)
